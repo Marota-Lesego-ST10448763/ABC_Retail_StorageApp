@@ -1,0 +1,528 @@
+﻿﻿@using ABCRetailers.Models
+@model IEnumerable<ABCRetailers.Models.Order>
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<style>
+    /* === Modern Sage Green Theme with Enhanced Animations === */
+    :root {
+        --primary-green: #3e6257;
+        --dark-green: #2b3a33;
+        --light-green: #a9c1b6;
+        --accent-green: #7ca494;
+        --background-light: #e8efeb;
+    }
+
+    body {
+        background: linear-gradient(135deg, var(--background-light) 0%, #d4e2dc 100%);
+        color: var(--dark-green);
+        font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    h2 {
+        color: var(--primary-green);
+        font-weight: 600;
+        text-shadow: 0 0 12px rgba(124, 164, 148, 0.3);
+    }
+
+    /* === CARD === */
+    .card {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(62, 98, 87, 0.2);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(62, 98, 87, 0.15);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(169, 193, 182, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 48px rgba(62, 98, 87, 0.25);
+            border-color: var(--accent-green);
+        }
+
+    /* === TABLE === */
+    .table {
+        color: var(--dark-green);
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0 0.5rem;
+    }
+
+        .table thead {
+            background: linear-gradient(135deg, var(--accent-green), var(--primary-green));
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+        }
+
+            .table thead th {
+                border: none;
+                padding: 1rem;
+                font-weight: 600;
+            }
+
+        .table tbody tr {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(62, 98, 87, 0.15);
+            transition: all 0.3s ease;
+        }
+
+    .table-hover tbody tr:hover {
+        background: rgba(169, 193, 182, 0.3);
+        transform: scale(1.01);
+        box-shadow: 0 4px 15px rgba(62, 98, 87, 0.25);
+    }
+
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+    /* === CODE === */
+    code {
+        background: rgba(169, 193, 182, 0.25);
+        color: var(--primary-green);
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        border: 1px solid rgba(62, 98, 87, 0.2);
+        transition: all 0.3s ease;
+    }
+
+        code:hover {
+            background: rgba(169, 193, 182, 0.35);
+            box-shadow: 0 0 10px rgba(169, 193, 182, 0.4);
+        }
+
+    /* === BADGES === */
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(43, 58, 51, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.3s ease;
+        }
+
+        .badge:hover::before {
+            left: 100%;
+        }
+
+        .badge:hover {
+            transform: scale(1.1);
+        }
+
+    .bg-primary {
+        background: linear-gradient(135deg, var(--accent-green), var(--primary-green)) !important;
+        color: white !important;
+    }
+
+    .bg-info {
+        background: linear-gradient(135deg, #a9c1b6, var(--accent-green)) !important;
+        color: var(--dark-green) !important;
+    }
+
+    .bg-success {
+        background: linear-gradient(135deg, #90b49d, var(--primary-green)) !important;
+        color: white !important;
+    }
+
+    .bg-danger {
+        background: linear-gradient(135deg, #b85c5c, #9c4343) !important;
+        color: white !important;
+    }
+
+    .bg-secondary {
+        background: linear-gradient(135deg, #cfd8d3, #b6c5be) !important;
+        color: var(--dark-green) !important;
+    }
+
+    /* === BUTTONS === */
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent-green), var(--primary-green));
+        border: none;
+        border-radius: 10px;
+        padding: 0.7rem 1.5rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(62, 98, 87, 0.25);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, var(--primary-green), var(--accent-green));
+            box-shadow: 0 6px 25px rgba(62, 98, 87, 0.35);
+        }
+
+    .btn-outline-primary,
+    .btn-outline-danger,
+    .btn-outline-success,
+    .btn-outline-secondary {
+        border-radius: 8px;
+        border-width: 2px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-outline-primary {
+        border-color: var(--primary-green);
+        color: var(--primary-green);
+    }
+
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, var(--accent-green), var(--primary-green));
+            color: white;
+            box-shadow: 0 4px 12px rgba(62, 98, 87, 0.25);
+            transform: translateY(-2px);
+        }
+
+    .btn-outline-danger {
+        border-color: #b85c5c;
+        color: #b85c5c;
+    }
+
+        .btn-outline-danger:hover {
+            background: linear-gradient(135deg, #b85c5c, #9c4343);
+            color: white;
+            box-shadow: 0 4px 12px rgba(184, 92, 92, 0.3);
+            transform: translateY(-2px);
+        }
+
+    /* === DROPDOWN MENU === */
+    .dropdown-menu {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(62, 98, 87, 0.2);
+        border-radius: 0.75rem;
+        box-shadow: 0 8px 32px rgba(62, 98, 87, 0.25);
+        animation: slideDown 0.3s ease;
+    }
+
+    @@keyframes slideDown {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .dropdown-item {
+        color: var(--dark-green);
+        transition: all 0.2s ease;
+        padding: 0.7rem 1rem;
+    }
+
+        .dropdown-item:hover {
+            background: rgba(169, 193, 182, 0.3);
+            color: var(--primary-green);
+            transform: translateX(5px);
+        }
+
+    /* === ALERT === */
+    .alert-info {
+        background: rgba(169, 193, 182, 0.2);
+        border: 1px solid rgba(62, 98, 87, 0.2);
+        border-left: 4px solid var(--primary-green);
+        border-radius: 0.75rem;
+        color: var(--dark-green);
+        backdrop-filter: blur(8px);
+        animation: fadeIn 0.5s ease;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* === MODAL === */
+    .modal-content {
+        background: linear-gradient(135deg, #f3f7f5, #e3ebe7);
+        color: var(--dark-green);
+        border: 1px solid rgba(62, 98, 87, 0.2);
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(62, 98, 87, 0.25);
+    }
+
+    .modal-header, .modal-footer {
+        border-color: rgba(62, 98, 87, 0.15);
+    }
+
+    .btn-close {
+        opacity: 0.7;
+        transition: all 0.3s ease;
+    }
+
+        .btn-close:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+        }
+
+    /* === ROW ANIMATION === */
+    .page-header {
+        animation: fadeInDown 0.6s ease;
+    }
+
+    @@keyframes fadeInDown {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .table tbody tr {
+        animation: fadeInUp 0.5s ease backwards;
+    }
+
+    @@keyframes fadeInUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* === ICONS === */
+    .fas {
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover .fas {
+        transform: scale(1.15);
+    }
+</style>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 page-header">
+        <h2><i class="fas fa-shopping-cart me-2"></i> Orders</h2>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="fas fa-plus me-1"></i> Add Order
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="card p-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Product</th>
+                            <th>Order Date (Local)</th>
+                            <th>Qty</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.OrderByDescending(o => o.OrderDateUtc))
+                        {
+                            <tr>
+                                <td><code>@(order.Id?.Length > 8 ? order.Id[..8] + "…" : order.Id)</code></td>
+                                <td>@order.CustomerId</td>
+                                <td>@(!string.IsNullOrWhiteSpace(order.ProductName) ? order.ProductName : order.ProductId)</td>
+                                <td>@FormatLocal(order.OrderDateUtc)</td>
+                                <td>@order.Quantity</td>
+                                <td>@order.TotalAmount.ToString("C")</td>
+                                <td><span class="badge bg-@Badge(order.Status)">@order.Status</span></td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-outline-info" title="Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        @if (order.Status is not OrderStatus.Completed and not OrderStatus.Cancelled)
+                                        {
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-warning dropdown-toggle" data-bs-toggle="dropdown" title="Update Status">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    @if (order.Status == OrderStatus.Submitted)
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" onclick="updateOrderStatus('@order.Id','Processing')">
+                                                                <i class="fas fa-cog text-info"></i> Mark as Processing
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                    @if (order.Status == OrderStatus.Processing)
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" onclick="updateOrderStatus('@order.Id','Completed')">
+                                                                <i class="fas fa-check text-success"></i> Mark as Completed
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                    <li>
+                                                        <a class="dropdown-item" href="#" onclick="updateOrderStatus('@order.Id','Cancelled')">
+                                                            <i class="fas fa-times text-danger"></i> Cancel Order
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        }
+
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete('@order.Id','@order.Id')" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info mt-3">
+            <i class="fas fa-info-circle me-2"></i> No orders found.
+            <a asp-action="Create" class="alert-link text-decoration-underline text-primary">Create your first order</a>!
+        </div>
+    }
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title text-danger"><i class="fas fa-exclamation-triangle me-2"></i> Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete order <strong id="orderId"></strong>?
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string FormatLocal(DateTimeOffset? dto)
+        => dto.HasValue ? dto.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm") : "-";
+
+    string Badge(OrderStatus status) => status switch
+    {
+        OrderStatus.Submitted => "primary",
+        OrderStatus.Processing => "info",
+        OrderStatus.Completed => "success",
+        OrderStatus.Cancelled => "danger",
+        _ => "secondary"
+    };
+}
+
+<form id="__af" method="post" style="display:none">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        function confirmDelete(orderIdFull, orderIdForDisplay) {
+            const shortId = (orderIdForDisplay && orderIdForDisplay.length > 8)
+                ? orderIdForDisplay.substring(0,8) + '…' : orderIdForDisplay;
+            document.getElementById('orderId').textContent = shortId;
+            document.getElementById('deleteForm').action = '@Url.Action("Delete", "Order")/' + encodeURIComponent(orderIdFull);
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            if (!confirm(`Change status to "${newStatus}"?`)) return;
+            const token = document.querySelector('#__af input[name="__RequestVerificationToken"]').value;
+            const body = new URLSearchParams({ id: orderId, newStatus, __RequestVerificationToken: token });
+            fetch('@Url.Action("UpdateOrderStatus", "Order")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                body
+            })
+            .then(r => r.json())
+            .then(data => data?.success ? location.reload() : alert('Error: ' + (data?.message ?? 'Unknown')))
+            .catch(() => alert('Error updating status'));
+        }
+    </script>
+}

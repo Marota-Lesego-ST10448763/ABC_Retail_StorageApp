@@ -1,0 +1,381 @@
+﻿@model IEnumerable<ABCRetailers.Models.Customer>
+
+@{
+    ViewData["Title"] = "Customers";
+}
+
+<style>
+    /* === Elegant Sage Green Theme === */
+    body {
+        background: linear-gradient(135deg, #e8efeb 0%, #d4e2dc 100%);
+        color: #2b3a33;
+        font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    h2 {
+        color: #3e6257;
+        font-weight: 600;
+        text-shadow: 0 0 10px rgba(62, 98, 87, 0.2);
+    }
+
+    .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Card with soft glass effect */
+    .card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(62, 98, 87, 0.2);
+        border-radius: 16px;
+        box-shadow: 0 6px 24px rgba(62, 98, 87, 0.15);
+        transition: all 0.4s ease;
+        overflow: hidden;
+    }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 36px rgba(62, 98, 87, 0.25);
+            border-color: rgba(62, 98, 87, 0.4);
+        }
+
+    /* Table styling */
+    .table {
+        color: #2b3a33;
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0 0.5rem;
+    }
+
+        .table thead {
+            background: linear-gradient(135deg, #7ca494 0%, #a9c1b6 100%);
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            border-radius: 12px 12px 0 0;
+        }
+
+            .table thead th {
+                border: none;
+                padding: 1rem;
+                font-weight: 600;
+            }
+
+        .table tbody tr {
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(62, 98, 87, 0.1);
+            transition: all 0.3s ease;
+            border-radius: 12px;
+        }
+
+    .table-hover tbody tr:hover {
+        background: linear-gradient(90deg, rgba(124, 164, 148, 0.15), rgba(169, 193, 182, 0.15));
+        transform: scale(1.01);
+        box-shadow: 0 4px 12px rgba(62, 98, 87, 0.2);
+    }
+
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+    /* Code tag styling */
+    code {
+        background: rgba(124, 164, 148, 0.2);
+        color: #3e6257;
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        border: 1px solid rgba(62, 98, 87, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        code:hover {
+            background: rgba(124, 164, 148, 0.3);
+            box-shadow: 0 0 10px rgba(62, 98, 87, 0.3);
+        }
+
+    /* Buttons */
+    .btn-primary {
+        background: linear-gradient(135deg, #7ca494, #a9c1b6);
+        border: none;
+        border-radius: 10px;
+        padding: 0.7rem 1.5rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(62, 98, 87, 0.3);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(62, 98, 87, 0.35);
+            filter: brightness(1.05);
+        }
+
+    /* Outline buttons */
+    .btn-outline-primary, .btn-outline-danger {
+        border-radius: 8px;
+        border-width: 2px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary {
+        border-color: #7ca494;
+        color: #3e6257;
+    }
+
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, #7ca494, #a9c1b6);
+            color: white;
+            border-color: #7ca494;
+            box-shadow: 0 4px 12px rgba(62, 98, 87, 0.3);
+        }
+
+    .btn-outline-danger {
+        border-color: #c97b7b;
+        color: #944f4f;
+    }
+
+        .btn-outline-danger:hover {
+            background: linear-gradient(135deg, #c97b7b, #e8b0b0);
+            color: white;
+            border-color: #c97b7b;
+            box-shadow: 0 4px 12px rgba(153, 61, 61, 0.3);
+        }
+
+    /* Alerts */
+    .alert-info {
+        background: linear-gradient(135deg, rgba(124, 164, 148, 0.1), rgba(169, 193, 182, 0.1));
+        border: 1px solid rgba(62, 98, 87, 0.3);
+        border-left: 4px solid #7ca494;
+        border-radius: 12px;
+        color: #2b3a33;
+        backdrop-filter: blur(10px);
+        animation: slideIn 0.5s ease;
+        padding: 1rem 1.2rem;
+    }
+
+    @@keyframes slideIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* Modal */
+    .modal-content {
+        background: linear-gradient(135deg, #f8faf9 0%, #e8efeb 100%);
+        color: #2b3a33;
+        border: 1px solid rgba(62, 98, 87, 0.2);
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(62, 98, 87, 0.3);
+    }
+
+    .modal-header, .modal-footer {
+        border-color: rgba(62, 98, 87, 0.2);
+    }
+
+    .modal-title {
+        color: #3e6257;
+        text-shadow: 0 0 6px rgba(62, 98, 87, 0.3);
+    }
+
+    .btn-close {
+        filter: invert(30%);
+        opacity: 0.7;
+        transition: all 0.3s ease;
+    }
+
+        .btn-close:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+        }
+
+    /* Header animation */
+    .page-header {
+        animation: fadeInDown 0.6s ease;
+    }
+
+    @@keyframes fadeInDown {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* Row fade-in animation */
+    .table tbody tr {
+        animation: fadeInUp 0.5s ease backwards;
+    }
+
+        .table tbody tr:nth-child(n) {
+            animation-delay: calc(0.05s * var(--i, 1));
+        }
+
+    @@keyframes fadeInUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* Icon animations */
+    .fas {
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover .fas {
+        transform: scale(1.15);
+    }
+
+    .fa-trash:hover {
+        animation: shake 0.5s ease;
+    }
+
+    @@keyframes shake {
+        0%, 100%
+
+    {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-4px);
+    }
+
+    75% {
+        transform: translateX(4px);
+    }
+
+    }
+</style>
+
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 page-header">
+        <h2><i class="fas fa-users me-2"></i> Customers</h2>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="fas fa-plus me-1"></i> Add New Customer
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="card p-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Customer ID</th>
+                            <th>Name</th>
+                            <th>Surname</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Shipping Address</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var customer in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <code>
+                                        @(string.IsNullOrEmpty(customer?.Id) ? "-" : customer.Id.Substring(0, Math.Min(8, customer.Id.Length)) + "…")
+                                    </code>
+                                </td>
+                                <td>@customer.Name</td>
+                                <td>@customer.Surname</td>
+                                <td>@customer.Username</td>
+                                <td>@customer.Email</td>
+                                <td>@customer.ShippingAddress</td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" asp-route-id="@customer.Id" class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="confirmDelete('@customer.Id', '@(customer.Name + " " + customer.Surname)')"
+                                                title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info mt-3">
+            <i class="fas fa-info-circle me-2"></i> No customers found.
+            <a asp-action="Create" class="alert-link text-decoration-underline text-primary">Add your first customer</a>!
+        </div>
+    }
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title text-danger"><i class="fas fa-exclamation-triangle me-2"></i> Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete customer <strong id="customerName"></strong>?
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(customerId, customerName) {
+            document.getElementById('customerName').textContent = customerName;
+            document.getElementById('deleteForm').action = '@Url.Action("Delete", "Customer")/' + encodeURIComponent(customerId);
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+}

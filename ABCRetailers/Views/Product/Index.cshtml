@@ -1,0 +1,282 @@
+﻿@model IEnumerable<ABCRetailers.Models.Product>
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+<style>
+    /* === Modern Sage Green Theme === */
+    body {
+        background: linear-gradient(135deg, #e8efe9 0%, #d8e3dc 100%);
+        color: #2f3e35;
+        font-family: 'Segoe UI', Roboto, sans-serif;
+        min-height: 100vh;
+    }
+
+    h2 {
+        color: #5a7052;
+        font-weight: 600;
+        text-shadow: 0 0 12px rgba(90, 112, 82, 0.2);
+    }
+
+    /* === Product Grid === */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+        animation: fadeInUp 0.5s ease;
+    }
+
+    /* === Cards === */
+    .card {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(125, 150, 125, 0.3);
+        border-radius: 16px;
+        box-shadow: 0 6px 24px rgba(60, 80, 60, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(80, 100, 80, 0.35);
+            border-color: rgba(90, 112, 82, 0.5);
+        }
+
+        .card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-bottom: 1px solid rgba(125, 150, 125, 0.3);
+        }
+
+    .card-body {
+        padding: 1rem 1.2rem;
+    }
+
+    .card-title {
+        font-weight: 600;
+        color: #5a7052;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-text {
+        color: #4a5b4a;
+        font-size: 0.9rem;
+        min-height: 50px;
+    }
+
+    .price {
+        color: #6b8f6b;
+        font-weight: 600;
+        text-shadow: 0 0 10px rgba(107, 143, 107, 0.3);
+    }
+
+    /* === Badges === */
+    .badge {
+        padding: 0.4rem 0.6rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 0.4rem;
+        box-shadow: 0 2px 6px rgba(60, 80, 60, 0.2);
+    }
+
+    .bg-success {
+        background: linear-gradient(135deg, #a8c4a2, #8bad88);
+        color: #2f3e35;
+    }
+
+    .bg-warning {
+        background: linear-gradient(135deg, #f8e4a0, #f0d67a);
+        color: #3f3b25;
+    }
+
+    .bg-danger {
+        background: linear-gradient(135deg, #e47c7c, #d66767);
+        color: #fff;
+    }
+
+    /* === Button Group === */
+    .btn-group {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .btn-outline-primary {
+        border: 1px solid #8bad88;
+        color: #5a7052;
+        background: transparent;
+    }
+
+        .btn-outline-primary:hover {
+            background: linear-gradient(90deg, #a8c4a2, #8bad88);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(139, 173, 136, 0.4);
+            transform: translateY(-2px);
+        }
+
+    .btn-outline-danger {
+        border: 1px solid #d66767;
+        color: #b44c4c;
+        background: transparent;
+    }
+
+        .btn-outline-danger:hover {
+            background: linear-gradient(90deg, #e47c7c, #d66767);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(212, 101, 101, 0.4);
+            transform: translateY(-2px);
+        }
+
+    /* === Alerts === */
+    .alert-info {
+        background: linear-gradient(135deg, rgba(168, 196, 162, 0.3), rgba(139, 173, 136, 0.2));
+        border: 1px solid rgba(125, 150, 125, 0.4);
+        border-left: 4px solid #8bad88;
+        border-radius: 12px;
+        color: #2f3e35;
+        margin-top: 2rem;
+        padding: 1rem;
+        backdrop-filter: blur(6px);
+        box-shadow: 0 4px 16px rgba(90, 112, 82, 0.2);
+    }
+
+    /* === Animations === */
+    @@keyframes fadeInUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* === Hover Accent for Buttons === */
+    .btn:hover {
+        cursor: pointer;
+    }
+
+    /* === Subtle Icon Animation (if using icons) === */
+    .btn i {
+        transition: transform 0.2s ease;
+    }
+
+    .btn:hover i {
+        transform: scale(1.1);
+    }
+</style>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 page-header">
+        <h2><i class="fas fa-box me-2"></i> Products</h2>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="fas fa-plus me-1"></i> Add New Product
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="product-grid">
+            @foreach (var product in Model)
+            {
+                var shortId = !string.IsNullOrWhiteSpace(product?.Id)
+                ? (product.Id.Length > 8 ? product.Id[..8] + "…" : product.Id)
+                : "-";
+                var desc = product?.Description ?? "";
+                var stock = product?.StockAvailable ?? 0;
+                var badge = stock > 10 ? "success" : stock > 0 ? "warning" : "danger";
+
+                <div class="card">
+                    @if (!string.IsNullOrWhiteSpace(product?.ImageUrl))
+                    {
+                        <img src="@product.ImageUrl" alt="@product.ProductName" />
+                    }
+                    else
+                    {
+                        <img src="https://via.placeholder.com/400x180?text=No+Image" alt="No Image" />
+                    }
+
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">@product?.ProductName</h5>
+                            <span class="badge bg-@badge">@stock</span>
+                        </div>
+
+                        <p class="card-text">@((desc.Length > 70 ? desc.Substring(0, 70) + "…" : desc))</p>
+
+                        <p class="price mb-0">@product?.Price.ToString("C")</p>
+
+                        <div class="btn-group">
+                            <a asp-action="Edit" asp-route-id="@product?.Id" class="btn btn-outline-primary">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button type="button" class="btn btn-outline-danger"
+                                    onclick="confirmDelete('@product?.Id','@product?.ProductName')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i> No products found.
+            <a asp-action="Create" class="alert-link text-decoration-underline text-primary">Add your first product</a>!
+        </div>
+    }
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title text-danger"><i class="fas fa-exclamation-triangle me-2"></i> Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong id="productName"></strong>?
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(productId, productName) {
+            document.getElementById('productName').textContent = productName || '';
+            document.getElementById('deleteForm').action = '@Url.Action("Delete", "Product")/' + encodeURIComponent(productId || '');
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+}
