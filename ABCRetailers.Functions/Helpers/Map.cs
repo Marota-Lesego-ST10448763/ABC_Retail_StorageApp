@@ -1,4 +1,5 @@
-﻿using ABCRetailers.Functions.Entities;
+﻿
+using ABCRetailers.Functions.Entities;
 using ABCRetailers.Functions.Models;
 
 namespace ABCRetailers.Functions.Helpers;

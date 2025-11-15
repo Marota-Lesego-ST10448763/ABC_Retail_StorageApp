@@ -7,7 +7,7 @@ public class BlobFunctions
 {
     [Function("OnProductImageUploaded")]
     public void OnProductImageUploaded(
-        [BlobTrigger("%BLOB_PRODUCT_IMAGES%/{name}", Connection = "AzureWebJobsSTORAGE_CONNECTION")] Stream blob,
+        [BlobTrigger("%BLOB_PRODUCT_IMAGES%/{name}", Connection = "STORAGE_CONNECTION")] Stream blob,
         string name,
         FunctionContext ctx)
     {

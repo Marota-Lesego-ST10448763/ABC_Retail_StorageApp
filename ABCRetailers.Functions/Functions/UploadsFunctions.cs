@@ -1,40 +1,65 @@
 ﻿using ABCRetailers.Functions.Helpers;
 using Azure.Storage.Blobs;
 using Azure.Storage.Files.Shares;
+using Azure.Data.Tables;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Configuration;
 
 namespace ABCRetailers.Functions.Functions;
 
-// Azure Function for handling proof-of-payment uploads
 public class UploadsFunctions
 {
-    private readonly string _conn;      // Storage connection string
-    private readonly string _proofs;    // Blob container name for payment proofs
-    private readonly string _share;     // Azure File Share name
-    private readonly string _shareDir;  // Subdirectory in file share
+    private readonly string _conn;
+    private readonly string _proofs;
+    private readonly string _share;
+    private readonly string _shareDir;
+    private readonly string _table;
 
-    // Load config values from local.settings.json
     public UploadsFunctions(IConfiguration cfg)
     {
-        _conn = "DefaultEndpointsProtocol=https;AccountName=abcretailsystem;AccountKey=p9SNYuAr2xGG+UMkGoupH/BXAzBB4h3s+dzKgE8Ra9eX2wCCcODjmdRufQxltLieRY2Jg0ckqoT9+AStDYNDHQ==;EndpointSuffix=core.windows.net";
+        _conn = "DefaultEndpointsProtocol=https;AccountName=abcretailerstorages;AccountKey=mt8y4QC6ItY+9N2mVFuxPyiZs2BXnVUW6mmqTnR8jE3lX29KO0xwFcjHEX/sKSzOdJ94In4Z79vQ+ASt2fOwhg==;EndpointSuffix=core.windows.net";
         _proofs = cfg["BLOB_PAYMENT_PROOFS"] ?? "payment-proofs";
         _share = cfg["FILESHARE_CONTRACTS"] ?? "contracts";
         _shareDir = cfg["FILESHARE_DIR_PAYMENTS"] ?? "payments";
+        _table = "Uploads"; // Table for upload metadata
     }
 
-    // POST /api/uploads/proof-of-payment — handles file upload
+    //  GET /api/uploads — list all uploaded documents
+    [Function("Uploads_List")]
+    public async Task<HttpResponseData> List(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "uploads")] HttpRequestData req)
+    {
+        var table = new TableClient(_conn, _table);
+        await table.CreateIfNotExistsAsync();
+
+        var items = new List<UploadedDocumentDto>();
+
+        await foreach (var entity in table.QueryAsync<TableEntity>(e => e.PartitionKey == "Upload"))
+        {
+            items.Add(new UploadedDocumentDto(
+                Id: entity.RowKey,
+                FileName: entity.GetString("FileName") ?? "",
+                OrderId: entity.GetString("OrderId"),
+                CustomerName: entity.GetString("CustomerName"),
+                UploadedAt: entity.GetDateTimeOffset("UploadedAt") ?? DateTimeOffset.UtcNow,
+                BlobUrl: entity.GetString("BlobUrl") ?? "",
+                FileSize: entity.GetInt64("FileSize") ?? 0
+            ));
+        }
+
+        return HttpJson.Ok(req, items.OrderByDescending(x => x.UploadedAt).ToList());
+    }
+
+    //  POST /api/uploads/proof-of-payment — handles file upload
     [Function("Uploads_ProofOfPayment")]
     public async Task<HttpResponseData> Proof(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "uploads/proof-of-payment")] HttpRequestData req)
     {
-        // Check for multipart/form-data
         var contentType = req.Headers.TryGetValues("Content-Type", out var ct) ? ct.First() : "";
         if (!contentType.StartsWith("multipart/form-data", StringComparison.OrdinalIgnoreCase))
             return HttpJson.Bad(req, "Expected multipart/form-data");
 
-        // Parse form data
         var form = await MultipartHelper.ParseAsync(req.Body, contentType);
         var file = form.Files.FirstOrDefault(f => f.FieldName == "ProofOfPayment");
         if (file is null || file.Data.Length == 0)
@@ -48,7 +73,30 @@ public class UploadsFunctions
         await container.CreateIfNotExistsAsync();
         var blobName = $"{Guid.NewGuid():N}-{file.FileName}";
         var blob = container.GetBlobClient(blobName);
-        await using (var s = file.Data) await blob.UploadAsync(s);
+
+        //  Measure BEFORE disposing
+        var fileSize = file.Data.Length;
+
+        using (var uploadStream = file.Data)
+        {
+            await blob.UploadAsync(uploadStream);
+        }
+
+        //  Save metadata to Table Storage
+        var table = new TableClient(_conn, _table);
+        await table.CreateIfNotExistsAsync();
+
+        var uploadEntity = new TableEntity("Upload", Guid.NewGuid().ToString())
+        {
+            ["FileName"] = blobName,
+            ["OrderId"] = orderId ?? "",
+            ["CustomerName"] = customerName ?? "",
+            ["UploadedAt"] = DateTimeOffset.UtcNow,
+            ["BlobUrl"] = blob.Uri.ToString(),
+            ["FileSize"] = fileSize
+        };
+
+        await table.AddEntityAsync(uploadEntity);
 
         // Write metadata to Azure File Share
         var share = new ShareClient(_conn, _share);
@@ -56,15 +104,24 @@ public class UploadsFunctions
         var root = share.GetRootDirectoryClient();
         var dir = root.GetSubdirectoryClient(_shareDir);
         await dir.CreateIfNotExistsAsync();
-
         var fileClient = dir.GetFileClient(blobName + ".txt");
+
         var meta = $"UploadedAtUtc: {DateTimeOffset.UtcNow:O}\nOrderId: {orderId}\nCustomerName: {customerName}\nBlobUrl: {blob.Uri}";
         var bytes = System.Text.Encoding.UTF8.GetBytes(meta);
+
         using var ms = new MemoryStream(bytes);
         await fileClient.CreateAsync(ms.Length);
         await fileClient.UploadAsync(ms);
 
-        // Return success response with blob info
         return HttpJson.Ok(req, new { fileName = blobName, blobUrl = blob.Uri.ToString() });
     }
+
+    public record UploadedDocumentDto(
+        string Id,
+        string FileName,
+        string? OrderId,
+        string? CustomerName,
+        DateTimeOffset UploadedAt,
+        string BlobUrl,
+        long FileSize);
 }

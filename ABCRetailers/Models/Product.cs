@@ -4,8 +4,9 @@ namespace ABCRetailers.Models
 {
     public class Product
     {
+        // set from Function response
         [Display(Name = "Product ID")]
-        public string Id { get; set; } = string.Empty; // set from Function response
+        public string Id { get; set; } = string.Empty; 
 
         [Required(ErrorMessage = "Product name is required")]
         [Display(Name = "Product Name")]

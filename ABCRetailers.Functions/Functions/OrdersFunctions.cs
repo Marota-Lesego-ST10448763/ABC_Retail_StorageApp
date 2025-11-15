@@ -24,7 +24,7 @@ public class OrdersFunctions
     // Load config values from local.settings.json or environment
     public OrdersFunctions(IConfiguration cfg)
     {
-        _conn = "DefaultEndpointsProtocol=https;AccountName=abcretailsystem;AccountKey=p9SNYuAr2xGG+UMkGoupH/BXAzBB4h3s+dzKgE8Ra9eX2wCCcODjmdRufQxltLieRY2Jg0ckqoT9+AStDYNDHQ==;EndpointSuffix=core.windows.net";
+        _conn = "DefaultEndpointsProtocol=https;AccountName=abcretailerstorages;AccountKey=mt8y4QC6ItY+9N2mVFuxPyiZs2BXnVUW6mmqTnR8jE3lX29KO0xwFcjHEX/sKSzOdJ94In4Z79vQ+ASt2fOwhg==;EndpointSuffix=core.windows.net";
         _ordersTable = cfg["TABLE_ORDER"] ?? "Order";
         _productsTable = cfg["TABLE_PRODUCT"] ?? "Product";
         _customersTable = cfg["TABLE_CUSTOMER"] ?? "Customer";

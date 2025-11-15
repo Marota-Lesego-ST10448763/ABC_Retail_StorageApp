@@ -56,19 +56,33 @@
             },
             "Azure.Storage.Blobs": {
               "target": "Package",
-              "version": "[12.25.1, )"
+              "version": "[12.26.0, )"
             },
             "Azure.Storage.Files.Shares": {
               "target": "Package",
-              "version": "[12.23.0, )"
+              "version": "[12.24.0, )"
             },
             "Azure.Storage.Queues": {
               "target": "Package",
-              "version": "[12.23.0, )"
+              "version": "[12.24.0, )"
             },
             "Microsoft.AspNetCore.WebUtilities": {
               "target": "Package",
               "version": "[2.2.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.11, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.11, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.11, )"
             },
             "Microsoft.Net.Http.Headers": {
               "target": "Package",

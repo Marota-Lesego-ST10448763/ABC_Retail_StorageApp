@@ -1,96 +1,99 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ABCRetailers.Models;
+﻿using ABCRetailers.Models;
 using ABCRetailers.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ABCRetailers.Controllers
 {
-    // Handles product-related actions in the web app
+    // Applies authentication to all actions in this controller
+    [Authorize]
     public class ProductController : Controller
     {
-        private readonly IFunctionsApi _api; // Service to call Azure Functions
-        private readonly ILogger<ProductController> _logger; // Logger for error tracking
+        private readonly IFunctionsApi _api;
+        private readonly ILogger<ProductController> _logger;
 
-        // Inject dependencies via constructor
         public ProductController(IFunctionsApi api, ILogger<ProductController> logger)
         {
             _api = api;
             _logger = logger;
         }
 
-        // Displays a list of all products
+        // Products can be viewed by both Admin and Customer
+        [Authorize(Roles = "Admin,Customer")]
         public async Task<IActionResult> Index()
         {
             var products = await _api.GetProductsAsync();
             return View(products);
         }
 
-        // Shows the empty form to create a new product
+        // Admin-only: create product form
+        [Authorize(Roles = "Admin")]
         public IActionResult Create() => View();
 
-        // Handles form submission for creating a product (with optional image)
+        // Admin-only: handle product creation
         [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(Product product, IFormFile? imageFile)
         {
-            if (!ModelState.IsValid) return View(product); // If form is invalid, redisplay it
-
+            if (!ModelState.IsValid) return View(product);
             try
             {
-                var saved = await _api.CreateProductAsync(product, imageFile); // Save product via API
+                var saved = await _api.CreateProductAsync(product, imageFile);
                 TempData["Success"] = $"Product '{saved.ProductName}' created successfully with price {saved.Price:C}!";
-                return RedirectToAction(nameof(Index)); // Go back to product list
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating product");
                 ModelState.AddModelError("", $"Error creating product: {ex.Message}");
-                return View(product); // Show error on form
+                return View(product);
             }
         }
 
-        // Loads product data into the edit form
+        // Admin-only: edit product form
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(string id)
         {
-            if (string.IsNullOrWhiteSpace(id)) return NotFound(); // No ID provided
-
+            if (string.IsNullOrWhiteSpace(id)) return NotFound();
             var product = await _api.GetProductAsync(id);
-            return product is null ? NotFound() : View(product); // Show form or 404
+            return product is null ? NotFound() : View(product);
         }
 
-        // Handles form submission for editing a product (with optional image)
+        // Admin-only: handle product update
         [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Product product, IFormFile? imageFile)
         {
-            if (!ModelState.IsValid) return View(product); // If form is invalid, redisplay it
-
+            if (!ModelState.IsValid) return View(product);
             try
             {
-                var updated = await _api.UpdateProductAsync(product.Id, product, imageFile); // Save changes
+                var updated = await _api.UpdateProductAsync(product.Id, product, imageFile);
                 TempData["Success"] = $"Product '{updated.ProductName}' updated successfully!";
-                return RedirectToAction(nameof(Index)); // Go back to product list
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating product");
                 ModelState.AddModelError("", $"Error updating product: {ex.Message}");
-                return View(product); // Show error on form
+                return View(product);
             }
         }
 
-        // Deletes a product by ID
+        // Admin-only: delete product
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string id)
         {
             try
             {
-                await _api.DeleteProductAsync(id); // Call backend to delete
+                await _api.DeleteProductAsync(id);
                 TempData["Success"] = "Product deleted successfully!";
             }
             catch (Exception ex)
             {
                 TempData["Error"] = $"Error deleting product: {ex.Message}";
             }
-
-            return RedirectToAction(nameof(Index)); // Go back to product list
+            return RedirectToAction(nameof(Index));
         }
     }
 }

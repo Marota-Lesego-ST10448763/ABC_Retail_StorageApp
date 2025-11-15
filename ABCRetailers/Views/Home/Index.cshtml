@@ -167,36 +167,48 @@
 </div>
 
 <!-- Quick Actions -->
-<div class="row g-4 mb-5">
-    <div class="col-md-3 col-sm-6">
-        <a asp-controller="Customer" asp-action="Index" class="action-card">
-            <i class="fas fa-users"></i>
-            <span>Customers</span>
-            <small>@Model?.CustomerCount total</small>
-        </a>
+<!-- Quick Actions - Only show if authenticated -->
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="row g-4 mb-5">
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="col-md-3 col-sm-6">
+                <a asp-controller="Customer" asp-action="Index" class="action-card">
+                    <i class="fas fa-users"></i>
+                    <span>Customers</span>
+                    <small>@Model?.CustomerCount total</small>
+                </a>
+            </div>
+        }
+
+        <div class="col-md-3 col-sm-6">
+            <a asp-controller="Product" asp-action="Index" class="action-card">
+                <i class="fas fa-box"></i>
+                <span>Products</span>
+                <small>@Model?.ProductCount total</small>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <a asp-controller="Order" asp-action="Index" class="action-card">
+                <i class="fas fa-shopping-cart"></i>
+                <span>@(User.IsInRole("Admin") ? "Orders" : "My Orders")</span>
+                <small>@Model?.OrderCount total</small>
+            </a>
+        </div>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="col-md-3 col-sm-6">
+                <a asp-controller="Upload" asp-action="Index" class="action-card">
+                    <i class="fas fa-upload"></i>
+                    <span>Uploads</span>
+                    <small>Payment proofs</small>
+                </a>
+            </div>
+        }
     </div>
-    <div class="col-md-3 col-sm-6">
-        <a asp-controller="Product" asp-action="Index" class="action-card">
-            <i class="fas fa-box"></i>
-            <span>Products</span>
-            <small>@Model?.ProductCount total</small>
-        </a>
-    </div>
-    <div class="col-md-3 col-sm-6">
-        <a asp-controller="Order" asp-action="Index" class="action-card">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Orders</span>
-            <small>@Model?.OrderCount total</small>
-        </a>
-    </div>
-    <div class="col-md-3 col-sm-6">
-        <a asp-controller="Upload" asp-action="Index" class="action-card">
-            <i class="fas fa-upload"></i>
-            <span>Uploads</span>
-            <small>Payment proofs</small>
-        </a>
-    </div>
-</div>
+}
 
 <!-- Featured Products -->
 <div class="row">
@@ -226,7 +238,7 @@
                             <div class="card-body">
                                 <h6 class="card-title">@product.ProductName</h6>
                                 <p class="card-text">
-                                   
+
                                 </p>
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <span class="product-price">@product.Price.ToString("C")</span>
